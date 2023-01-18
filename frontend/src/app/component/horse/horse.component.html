@@ -1,0 +1,141 @@
+
+<div class="d-flex flex-row w-auto">
+  <button class="btn btn-primary mr-1" (click)="reloadHorses()" aria-label="Reload horses">
+    <i class="bi bi-arrow-clockwise"></i>
+    Reload
+  </button>
+  <span style="flex: 1"></span>
+  <a class="btn btn-secondary" routerLink="create" aria-label="New horse">
+    <i class="bi bi-plus-lg"></i>
+    New horse
+  </a>
+</div>
+
+<form #form="ngForm" class="d-flex flex-row w-auto mb-3" (ngSubmit)="reloadHorses(form)"  (keyup)="reloadHorses()">
+  <!-- this button is here, just so that simple submitting of this form
+       to reload the horses, is possible -->
+  <button type="submit" (keyup)="reloadHorses(form)" hidden="true">submit</button>
+  <div class="flex-grow-2">
+    <label class="col-form-label">
+      Name
+    </label>
+    <input type="text" name="searchHorseName" (ngModelChange)="reloadHorses(form)" (keyup)="reloadHorses(form)"
+           class="form-control"  [(ngModel)]="searchHorse.name"
+           >
+  </div>
+  <div class="flex-grow-1 ms-1">
+    <label  class="col-form-label">
+      Description
+    </label>
+    <input type="text" name="searchHorseDescription" (ngModelChange)="reloadHorses(form)" (keyup)="reloadHorses(form)"
+           class="form-control"  [(ngModel)]="searchHorse.description"
+           >
+  </div>
+  <div class="ms-1">
+    <label class="col-form-label">
+      Date of Birth
+    </label>
+    <!-- pattern and placeholder are fallbacks for browser, that use a simple text input for type="date"
+         The date format of the plain HTML date input, in browser that support it is, sadly, not changeable in a cross-browser way
+      -->
+    <input type="date" name="searchHorseDateOfBirth"
+           pattern="\d{4}-\d{2}-\d{2}"
+           placeholder="yyyy-mm-dd"
+           class="form-control"
+           [(ngModel)]="searchHorse.bornBefore"
+           (ngModelChange)="reloadHorses(form)"
+           (keyup)="reloadHorses(form)"
+           >
+  </div>
+  <div class="ms-1">
+    <label class="col-form-label">
+      Sex
+    </label>
+    <select name="searchHorseSex" [(ngModel)]="searchHorse.sex" (ngModelChange)="reloadHorses(form)" (keyup)="reloadHorses(form)"
+            class="form-select"
+            >
+      <option></option>
+      <option value="FEMALE" (ngModelChange)="reloadHorses(form)" (keyup)="reloadHorses(form)">Female</option>
+      <option value="MALE" (ngModelChange)="reloadHorses(form)" (keyup)="reloadHorses(form)">Male</option>
+    </select>
+  </div>
+  <div class="flex-grow-2 ms-1">
+    <label class="col-form-label">
+      Owner
+    </label>
+    <app-autocomplete
+      id="searchHorseOwner"
+      name="searchHorseOwner"
+      textInputClass="form-control"
+      valueNeedsToMatchSuggestion="true"
+      [formatModel]="ownerName"
+      [(ngModel)]="searchHorse.owner"
+      [suggestions]="ownerSuggestions"
+      (ngModelChange)="reloadHorses(form)"
+      (keyup)="reloadHorses(form)"
+    ></app-autocomplete>
+  </div>
+</form>
+
+<div class="mt-3">
+  <table class="table table-hover">
+    <thead>
+      <th>Name</th>
+      <th>Description</th>
+      <th>Date of Birth</th>
+      <th>Sex</th>
+      <th>Owner</th>
+      <th class="min-width">Actions</th>
+    </thead>
+    <tbody>
+      <tr *ngFor="let horse of horses" class="center-td">
+        <td>{{horse.name}}</td>
+        <td>{{horse.description}}</td>
+        <td>{{dateOfBirthAsLocaleDate(horse)}}</td>
+        <td>{{horse.sex === 'FEMALE' ? 'Female' : 'Male'}}</td>
+        <td>{{ownerName(horse.owner)}}</td>
+        <td>
+          <div class="btn-group">
+            <a class="btn btn-sm responsive-info-button"
+               [routerLink]="[horse.id]"
+               aria-label="Show horse details">
+              <i class="bi bi-info-lg"></i>
+            </a>
+            <a class="btn btn-sm responsive-warning-button"
+               [routerLink]="[horse.id, 'edit']"
+               aria-label="Edit horse">
+              <i class="bi bi-pencil"></i>
+            </a>
+            <a class="btn btn-sm responsive-warning-button"
+               data-bs-toggle="modal" data-bs-target="#exampleModal"
+               (click)="delete(horse.id)"
+               aria-label="Delete horse">
+              <i class="bi bi-trash"></i>
+            </a>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Modal -->
+  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Delete Horse</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Deleting a horse permanently removes it from the system. Deleted horses can not be restored. Are you sure you
+          want to delete the horse?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" (click)="deleteHorse()" data-bs-dismiss="modal" class="btn btn-primary">Delete Horse</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
